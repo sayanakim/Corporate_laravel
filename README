@@ -1,0 +1,94 @@
+1. Installer laravel
+
+    - cd domains
+    - $ composer global require laravel/installer
+    - $ laravel new corporate.
+    - $ cd corporate.loc
+
+2. Migration
+
+    - Создаем БД в phpmyadmin 'corporate"
+    - cоздание таблиц БД для записей:
+        $ php artisan make:migration CreateArticlesTable --create=articles
+            database -> create_articles_table -> добавляем:
+                          $table->string('title', 255);
+                          $table->text('text');
+                          $table->text('desc');
+                          $table->string('alias',150)->unique();
+    - создание таблицы БД для портфолио:
+        $ php artisan make:migration CreatePortfoliosTable --create=potfolios
+            database -> create_portfolios_table -> добавляем:
+                        $table->string('title');
+                        $table->text('text');
+                        $table->string('customer',150);
+                        $table->string('alias', 150);
+                        $table->string('img', 150);
+    - создание таблицы БД для фильтра:
+               create_filters_table:
+                    $table->string('title');
+                    $table->string('alias', 150)->unique();
+    - создание таблицы БД для комментариев:
+                    $table->text('text');
+                    $table->string('name'); // пользователи
+                    $table->string('email');
+                    $table->string('site');
+                    $table->integer('parent_id'); // дерево комментариев, ответ на комментарий
+    - создание таблицы БД для sliders:
+                $table->string('img');
+                $table->text('desc');
+                $table->string('title');
+    - создание таблицы БД для главного меню:
+                $table->string('title');
+                $table->string('path');
+                $table->integer('parent');
+    - создание таблицы БД для категорий:
+                $table->string('title');
+                $table->integer('parent_id')->default(0);
+                $table->string('alias');
+
+    $ php artisan migrate
+
+3. Изменение таблиц - СВЯЗИ (индексы)
+    $ php artisan make:migration ChangeArticlesTable --table=articles
+
+        a) изменение articles:
+            - связь определенного пользователя к таблице users
+                database -> migrations -> change_articles_table:
+                        $table->unsignedBigInteger('user_id');
+                        $table->foreign('user_id')->references('id')->on('users');$table->foreign('user_id')->references('id')->on('users');
+            - связь определенной категории к таблице categories:
+                database -> migrations -> change_articles_table:
+                        $table->unsignedBigInteger('category_id');
+                        $table->foreign('category_id')->references('id')->on('categories');
+
+        b) изменение comments:
+            - связь опред.материала к опред.статье блога -> связь т.comments c т.category
+            - связь комментарий с опред.пользователем
+                    $table->integer('article_id')->unsigned()->default(1);
+                    $table->foreign('article_id')->references('id')->on('articles');
+
+                    незарегистрированный пользователь моеж оставлять коммент
+                    $table->integer('user_id')->unsigned()->nullable();
+                    $table->foreign('user_id')->references('id')->on('users');
+        c) изменение portfolios:
+                    $table->string('filter_alias');
+                    $table->foreign('filter_alias')->references('alias')->on('filters');
+
+4. Добавление начальных данных для таблиц
+
+5. Authenfications (документация laravel->authenfication)
+        $ composer require laravel/breeze --dev
+        $ php artisan breeze:install
+        (через powershell):
+        $ npm install
+        $ npm run dev
+
+6. Маршрутизация
+
+7. В шаблон для подключения CSS и JS дописываем путь ко всем файлам:
+            href="{{ asset(env('THEME')) }}/css/reset.css"
+            {{ asset(env('THEME')) }} - это путь к хэлперу env: THEME=pink
+
+8. Меню: Документация https://github.com/lavary/laravel-menu#installation
+
+
